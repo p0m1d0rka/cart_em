@@ -93,10 +93,25 @@ class ItemCard extends BasicItem{
 
   _createInput(elem_name){
     const input = document.createElement('input');
-    input.className = 'form-control';
-    input.id = `item${elem_name}`;
+    input.className = `form-control item_${elem_name}`;
+    input.dataset.id = this.id
     input.type = 'text';
+
     input.placeholder = `Put a new ${elem_name}`;
+    input.addEventListener('input', (event)=>{
+      this[elem_name.toLowerCase()] = event.target.value
+      document
+      .querySelector(`.card[data-id='${this.id}'] .card-${elem_name.toLowerCase()}`)
+      .innerText =  this[elem_name.toLowerCase()];
+
+      for (var item in itemsInCart){
+        if(itemsInCart[item].id === this.id){
+          const it = itemsInCart[item]
+          it[elem_name.toLowerCase()] = event.target.value;
+          it.update_all();
+        }
+      }
+    })
     return input
   }
 
@@ -198,14 +213,14 @@ class ItemInCart extends BasicItem{
 
   addItem(){
     this.amount++;
-    this.update_amount();
-    update_total();
+    this.update_all();
   }
 
   deleteItem(){
     this.amount--;
-    update_total();
+    this.update_all();
   }
+
 
   unDraw(){
     const index = itemsInCart.indexOf(this);
@@ -216,6 +231,14 @@ class ItemInCart extends BasicItem{
 
   update_amount(){
     document.querySelector(`.itemInCard[data-id='${this.id}'] div.amount span`).innerText = this.amount;
+    update_total();
+  }
+  update_all(){
+    const item = document.querySelector(`.itemInCard[data-id='${this.id}']`)
+    item.querySelector('div.amount span').innerText = this.amount
+    item.querySelector('div[data-col_type="price"]').innerText = this.price
+    item.querySelector('div[data-col_type="title"]').innerText = this.title
+    item.querySelector('div[data-col_type="sum"]').innerText = this.amount * this.price
     update_total();
   }
 }
